@@ -1,7 +1,5 @@
-# mauriciosilveirani-landing-mas-ni
-<<<<<<< HEAD
-Projeto de Landing Page “MAS-NI” para Divulgação de Imóveis
-
+# mauriciosilveirani-landing-mas-ni  
+## Projeto de Landing Page “MAS-NI” para Divulgação de Imóveis
 1\. Visão Geral
 
 Criar uma landing page dinâmica e automatizada que capture, do site Tytan Imóveis,
