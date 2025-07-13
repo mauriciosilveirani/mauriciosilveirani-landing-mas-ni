@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Landing page dinâmica da Tytan Imóveis em Passo Fundo–RS. Descubra, compare e fale direto por WhatsApp." />
+  <title>Landing MAS-NI – Imóveis Tytan</title>
+
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: Arial, sans-serif;
+      background: #F5F5F5;
+      color: #333;
+      line-height: 1.5;
+    }
+    a { color: inherit; text-decoration: none; }
+
+    header, main, footer { width: 100%; }
+    header {
+      background: #fff;
+      box-shadow: 0 2px 4px rgba(0,0,0,.08);
+      padding: 1rem;
+      text-align: center;
+    }
+    header img {
+      max-width: 180px;
+      height: auto;
+      loading: lazy;
+    }
+
+    main {
+      max-width: 960px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      background: #fff;
+      box-shadow: 0 2px 8px rgba(0,0,0,.1);
+    }
+
+    .slider-container {
+      padding: 2rem;
+    }
+    .slider-container label {
+      font-weight: bold;
+      display: block;
+      margin-bottom: 0.5rem;
+    }
+    .slider-container input[type="range"] {
+      width: 100%;
+      height: 8px;
+      background: #ddd;
+      border-radius: 5px;
+      outline: none;
+    }
+    .slider-container input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 20px;
+      height: 20px;
+      background: #3498db;
+      border-radius: 50%;
+      cursor: pointer;
+      border: none;
+    }
+    .slider-container #valor-exibido {
+      margin-top: 0.5rem;
+      font-size: 1.1rem;
+      color: #2c3e50;
+    }
+
+    .imovel {
+      margin-bottom: 3rem;
+      border-bottom: 1px solid #eee;
+      padding-bottom: 2rem;
+    }
+    .imovel h2 {
+      font-size: 1.6rem;
+      margin-bottom: .5rem;
+    }
+    .highlight {
+      background: #00A4B7;
+      color: #fff;
+      padding: 2px 6px;
+      border-radius: 3px;
+    }
+    .info-geral {
+      list-style: none;
+      margin: 1rem 0;
+    }
+    .info-geral li {
+      margin-bottom: .4rem;
+    }
+    .galeria {
+      display: flex;
+      gap: .5rem;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      margin-bottom: 1rem;
+    }
+    .galeria img {
+      max-height: 150px;
+      border-radius: 4px;
+      loading: lazy;
+    }
+    .caracteristicas {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: .5rem;
+      margin-bottom: 1rem;
+    }
+    .caracteristica {
+      background: #F5F5F5;
+      padding: .5rem;
+      border-radius: 3px;
+      text-align: center;
+      font-size: .9rem;
+    }
+    .cta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+    .btn {
+      display: inline-block;
+      padding: .8rem 1.2rem;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 1rem;
+      text-decoration: none;
+      color: #fff;
+    }
+    .btn-whatsapp { background: #25D366; }
+    .btn-redes a {
+      margin-right: .5rem;
+      color: #00304A;
+      font-weight: bold;
+    }
+
+    footer {
+      text-align: center;
+      font-size: .8rem;
+      padding: 1rem 0;
+      color: #666;
+      background: #fff;
+      margin-top: 2rem;
+      box-shadow: 0 -1px 4px rgba(0,0,0,.05);
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <a href="/">
+      <img src="assets/logos/tt-logo.png" alt="Logo Tytan Imóveis" loading="lazy" />
+    </a>
+  </header>
+
+  <main>
+    <section class="slider-container">
+      <label for="valor-interesse">Faixa de valor de interesse:</label>
+      <input
+        type="range"
+        id="valor-interesse"
+        name="valor-interesse"
+        min="0"
+        max="20000000"
+        step="50000"
+        value="500000"
+        oninput="atualizarValor(this.value)"
+      />
+      <div id="valor-exibido">R$ 500.000</div>
+    </section>
+
+    <div id="imoveis-container">
+      <!-- Imóveis serão carregados aqui -->
+    </div>
+  </main>
+
+  <footer>
+    © 2025 MAS-NI | Mauricio Silveira – CRECI 74302
+  </footer>
+
+  <script>
+    const JSON_URL = './imoveis.json';
+
+    function escapeRegExp(str = '') {
+      return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    }
+
+    function highlight(text, word) {
+      if (!word) return text;
+      const esc = escapeRegExp(word);
+      const regex = new RegExp(`(${esc})`, 'gi');
+      return text.replace(regex, '<span class="highlight">$1</span>');
+    }
+
+    function renderImovel(im) {
+      const endParts = [
+        im.endereco.rua,
+        im.endereco.unidade ? `Unid. ${im.endereco.unidade}` : null,
+        im.endereco.bairro,
+        im.endereco.cidade
+      ].filter(Boolean).join(' – ');
+      const galeriaHTML = (im.fotos || []).length
+        ? im.fotos.map((src,i) =>
+            `<img src="${src}" alt="Foto ${i+1} de ${im.titulo}" loading="lazy">`
+          ).join('')
+        : '<p>Sem imagens disponíveis.</p>';
+
+      const specsArr = [
+        `Valor: R$ ${im.valor.toLocaleString('pt-BR')}`,
+        `Perfil: ${im.perfil}`,
+        `Área Terreno: ${im.terreno || '–'} m²`,
+        `Área Const.: ${im.areaConstruida || '–'} m²`,
+        `Vagas: ${im.vagas || 0}`,
+        `Lavabos: ${im.lavabos || 0}`,
+        `Elevador: ${im.elevador || '–'}`
+      ];
+      if (im.complemento) specsArr.push(`Complemento: ${im.complemento}`);
+      const specsHTML = specsArr
+        .map(t => `<div class="caracteristica">${t}</div>`)
+        .join('');
+
+      const whatsappMsg = encodeURIComponent(
+        `Olá Mauricio, tenho interesse nesse imóvel (ID: ${im.id})`
+      );
+
+      return `
+        <article class="imovel">
+          <h2>${highlight(im.titulo, im.palavraDestaque)}</h2>
+          <div class="galeria">${galeriaHTML}</div>
+          <ul class="info-geral">
+            <li><strong>Endereço:</strong> ${endParts}</li>
+            <li><strong>CEP:</strong> ${im.endereco.cep}</li>
+            <li><strong>Próximo a:</strong> ${im.proximo || '–'}</li>
+          </ul>
+          <div class="caracteristicas">${specsHTML}</div>
+          <div class="cta">
+            <a class="btn btn-whatsapp" href="https://wa.me/54999832413?text=Olá%20Mauricio,%20tenho%20interesse%20nesse%20imóvel%20(ID:${im.id})" target="_blank" rel="noopener noreferrer">Falar no WhatsApp</a>
+            <a href="https://www.facebook.com/MauricioSilveira1962/" target="_blank" rel="noopener noreferrer">Facebook</a>
+            <a href="https://www.instagram.com/mascorretor" target="_blank" rel="noopener noreferrer">Instagram</a>
+            <a href="https://www.threads.net/@mascorretor" target="_blank" rel="noopener noreferrer">Threads</a>
+          </div
