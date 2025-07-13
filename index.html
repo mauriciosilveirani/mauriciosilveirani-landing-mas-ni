@@ -223,6 +223,7 @@
         im.endereco.bairro,
         im.endereco.cidade
       ].filter(Boolean).join(' – ');
+
       const galeriaHTML = (im.fotos || []).length
         ? im.fotos.map((src,i) =>
             `<img src="${src}" alt="Foto ${i+1} de ${im.titulo}" loading="lazy">`
@@ -239,9 +240,14 @@
         `Elevador: ${im.elevador || '–'}`
       ];
       if (im.complemento) specsArr.push(`Complemento: ${im.complemento}`);
+
       const specsHTML = specsArr
         .map(t => `<div class="caracteristica">${t}</div>`)
         .join('');
+
+      const whatsappMsg = encodeURIComponent(
+        `Olá Mauricio, tenho interesse nesse imóvel (ID: ${im.id})`
+      );
 
       return `
         <article class="imovel">
@@ -249,4 +255,5 @@
           <div class="galeria">${galeriaHTML}</div>
           <ul class="info-geral">
             <li><strong>Endereço:</strong> ${endParts}</li>
-            <li><strong>CEP:</strong> ${
+            <li><strong>CEP:</strong> ${im.endereco.cep}</li>
+            <li><strong>Próximo a:</strong>
