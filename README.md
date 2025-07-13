@@ -1,168 +1,168 @@
-# Projeto de Landing Page “MAS-NI” para Divulgação de Imóveis
+Projeto de Landing Page “MAS-NI” para Divulgação de Imóveis
 
-# 1\. Visão Geral
+1\. Visão Geral
 
-# Criar uma landing page dinâmica e automatizada que capture, do site Tytan Imóveis,
+Criar uma landing page dinâmica e automatizada que capture, do site Tytan Imóveis,
 
-# todos os dados dos imóveis (título, endereço, preço, fotos, características)
+todos os dados dos imóveis (título, endereço, preço, fotos, características)
 
-# e apresente sempre atualizado, com foco em conversão via WhatsApp.
+e apresente sempre atualizado, com foco em conversão via WhatsApp.
 
-# 2\. Objetivos
+2\. Objetivos
 
-# \- Capturar leads qualificados (comercial e residencial)
+\- Capturar leads qualificados (comercial e residencial)
 
-# \- Expor novos lançamentos da Tytan em Passo Fundo/RS
+\- Expor novos lançamentos da Tytan em Passo Fundo/RS
 
-# \- Facilitar contato via WhatsApp (Mauricio Silveira – CRECI 74302)
+\- Facilitar contato via WhatsApp (Mauricio Silveira – CRECI 74302)
 
-# \- Monitorar performance (visitas, tempo de permanência, cliques no CTA)
+\- Monitorar performance (visitas, tempo de permanência, cliques no CTA)
 
-# 3\. Público-Alvo
+3\. Público-Alvo
 
-# \- Corretores, investidores e empreendedores de Passo Fundo/RS
+\- Corretores, investidores e empreendedores de Passo Fundo/RS
 
-# \- Clínicas, consultórios e escritórios na região da Saúde
+\- Clínicas, consultórios e escritórios na região da Saúde
 
-# \- Profissionais que buscam agilidade e retorno de investimento
+\- Profissionais que buscam agilidade e retorno de investimento
 
-# 4\. Estrutura e Conteúdo Dinâmico
+4\. Estrutura e Conteúdo Dinâmico
 
-# 4.1 Hero Section
+4.1 Hero Section
 
-# • Título dinâmico (ex: “PRÉDIO COMERCIAL LOCALIZAÇÃO PRIVILEGIADA DA SAÚDE”)
+• Título dinâmico (ex: “PRÉDIO COMERCIAL LOCALIZAÇÃO PRIVILEGIADA DA SAÚDE”)
 
-# • Sub-headline com valor e endereço
+• Sub-headline com valor e endereço
 
-# • Botão “Quero mais detalhes” → WhatsApp
+• Botão “Quero mais detalhes” → WhatsApp
 
-# 4.2 Carrossel de Imagens
+4.2 Carrossel de Imagens
 
-# • Galeria responsiva via JSON/API de scraping
+• Galeria responsiva via JSON/API de scraping
 
-# 4.3 Ficha Técnica Automatizada
+4.3 Ficha Técnica Automatizada
 
-# • Campos: ID, endereço, valor, área, vagas, lavabos, elevador, etc
+• Campos: ID, endereço, valor, área, vagas, lavabos, elevador, etc
 
-# • Colunas de “Características”, “Acabamentos”, “Comodidades”
+• Colunas de “Características”, “Acabamentos”, “Comodidades”
 
-# 4.4 Descrição do Imóvel
+4.4 Descrição do Imóvel
 
-# • Texto rico enfatizando localização médica e proximidade ao IOT/Unimed
+• Texto rico enfatizando localização médica e proximidade ao IOT/Unimed
 
-# 4.5 Proposta de Valor + Credenciais
+4.5 Proposta de Valor + Credenciais
 
-# • Bloco “Corretor Responsável”: Mauricio Silveira | CRECI 74302
+• Bloco “Corretor Responsável”: Mauricio Silveira | CRECI 74302
 
-# • Botão WhatsApp fixo
+• Botão WhatsApp fixo
 
-# 4.6 Prova Social \& Redes
+4.6 Prova Social \& Redes
 
-# • Facebook: /MauricioSilveira1962
+• Facebook: /MauricioSilveira1962
 
-# • Instagram/Threads: @mascorretor
+• Instagram/Threads: @mascorretor
 
-# 4.7 Seção “Novidades”
+4.7 Seção “Novidades”
 
-# • Widget que puxa lançamentos do site Tytan
+• Widget que puxa lançamentos do site Tytan
 
-# • CTA “Ver todos” com filtros por bairro/tipo
+• CTA “Ver todos” com filtros por bairro/tipo
 
-# 4.8 Área de Manutenção (GitHub Pages)
+4.8 Área de Manutenção (GitHub Pages)
 
-# • Login restrito para atualizar estoque, banners e textos
+• Login restrito para atualizar estoque, banners e textos
 
-# 4.9 Footer \& Dashboards
+4.9 Footer \& Dashboards
 
-# • Contatos, política de privacidade, links úteis
+• Contatos, política de privacidade, links úteis
 
-# • Tile com Top 5 imóveis, acessos no período, agenda interna
+• Tile com Top 5 imóveis, acessos no período, agenda interna
 
-# 5\. Automação \& Integrações
+5\. Automação \& Integrações
 
-# 5.1 Scraping Agendado
+5.1 Scraping Agendado
 
-# • Python (BeautifulSoup / Selenium) ou Node.js (Puppeteer)
+• Python (BeautifulSoup / Selenium) ou Node.js (Puppeteer)
 
-# • Cron job (AWS Lambda / Heroku Scheduler)
+• Cron job (AWS Lambda / Heroku Scheduler)
 
-# • Extrair: título, endereço, preço, fotos, características, descrição, acabamentos
+• Extrair: título, endereço, preço, fotos, características, descrição, acabamentos
 
 python scraper/scrape\_tytan.py > imoveis.json
 
-# 5.2 Back-end \& API
+5.2 Back-end \& API
 
-# • Banco de dados: MySQL / PostgreSQL
+• Banco de dados: MySQL / PostgreSQL
 
-# • Endpoints REST:
+• Endpoints REST:
 
-# GET  /api/imoveis
+GET  /api/imoveis
 
-# GET  /api/imoveis/:id
+GET  /api/imoveis/:id
 
-# POST /api/leads
+POST /api/leads
 
-# 5.3 Integração com CRM (futuro)
+5.3 Integração com CRM (futuro)
 
-# • Leads → Integração via API REST (a definir)
+• Leads → Integração via API REST (a definir)
 
-# • Dashboards customizados: mais acessados, taxa de conversão, agenda
+• Dashboards customizados: mais acessados, taxa de conversão, agenda
 
-# 5.4 Monitoramento \& Marketing
+5.4 Monitoramento \& Marketing
 
-# • Google Analytics + Meta Pixel + Hotjar (heatmaps)
+• Google Analytics + Meta Pixel + Hotjar (heatmaps)
 
-# • A/B tests: headlines e imagem principal
+• A/B tests: headlines e imagem principal
 
-# 5.5 E-mail \& Automação
+5.5 E-mail \& Automação
 
-# • Gatilhos: visita X vezes ou download de PDF → sequência de e-mails
+• Gatilhos: visita X vezes ou download de PDF → sequência de e-mails
 
-# (Ferramentas de automação como Email Marketing / CRM)
+(Ferramentas de automação como Email Marketing / CRM)
 
-# • Remarketing dinâmico no Facebook/Instagram
+• Remarketing dinâmico no Facebook/Instagram
 
-# 6\. Identidade Visual
+6\. Identidade Visual
 
-# • Paleta de cores: cinza escuro, azul petróleo, off-white
+• Paleta de cores: cinza escuro, azul petróleo, off-white
 
-# • Tipografia: sans-serif moderna
+• Tipografia: sans-serif moderna
 
-# • Ícones: consistentes para características e acabamentos
+• Ícones: consistentes para características e acabamentos
 
-# 7\. Cronograma \& Entregas
+7\. Cronograma \& Entregas
 
-# Fase                         Entrega                                   Prazo
+Fase                         Entrega                                   Prazo
 
-# --------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
 
-# 1\. Briefing \& Wireframe      Protótipo low-fi                           2 dias
+1\. Briefing \& Wireframe      Protótipo low-fi                           2 dias
 
-# 2\. Design Visual             Mockup hi-fi da página principal           4 dias
+2\. Design Visual             Mockup hi-fi da página principal           4 dias
 
-# 3\. Desenvolvimento           Front-end + back-end + scraper             7 dias
+3\. Desenvolvimento           Front-end + back-end + scraper             7 dias
 
-# 4\. Integrações               GitHub Pages, Analytics, WhatsApp, Meta            3 dias
+4\. Integrações               GitHub Pages, Analytics, WhatsApp, Meta            3 dias
 
-# 5\. Testes \& Ajustes          QA, performance, SEO, responsivo           3 dias
+5\. Testes \& Ajustes          QA, performance, SEO, responsivo           3 dias
 
-# 6\. Go Live                   Deploy \& analytics setup                   1 dia
+6\. Go Live                   Deploy \& analytics setup                   1 dia
 
-# --------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
 
-# Total aproximado                                                       20 dias
+Total aproximado                                                       20 dias
 
-# 8\. Sugestões Extras (Originals!)
+8\. Sugestões Extras (Originals!)
 
-# \- Tour virtual 360° dos principais imóveis
+\- Tour virtual 360° dos principais imóveis
 
-# \- Chatbot inteligente (WhatsApp API / Tidio) por código de imóvel
+\- Chatbot inteligente (WhatsApp API / Tidio) por código de imóvel
 
-# \- Integração com Google Maps: mapa interativo
+\- Integração com Google Maps: mapa interativo
 
-# \- Push Notifications Web: avisos de novos imóveis ou promoções
+\- Push Notifications Web: avisos de novos imóveis ou promoções
 
-# \- SEO Local: rich snippets e schema.org (endereço e preço)
+\- SEO Local: rich snippets e schema.org (endereço e preço)
 
-# \- PageSpeed \& Acessibilidade: auditoria Lighthouse, conformidade WCAG
+\- PageSpeed \& Acessibilidade: auditoria Lighthouse, conformidade WCAG
 
