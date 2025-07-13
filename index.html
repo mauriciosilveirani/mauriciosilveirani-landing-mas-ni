@@ -190,7 +190,19 @@
         renderizarImoveis(todosOsImoveis);
       });
 
+    function escapeRegExp(str = '') {
+      return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    }
+
+    function highlight(text, word) {
+      if (!word) return text;
+      const esc = escapeRegExp(word);
+      const regex = new RegExp(`(${esc})`, 'gi');
+      return text.replace(regex, '<span class="highlight">$1</span>');
+    }
+
     function atualizarValor(valor) {
+      console.log('Valor slider:', valor);
       const exibido = document.getElementById("valor-exibido");
       exibido.textContent = `R$ ${Number(valor).toLocaleString('pt-BR')}`;
       const valorSelecionado = Number(valor);
@@ -230,8 +242,13 @@
       ];
       if (im.complemento) specsArr.push(`Complemento: ${im.complemento}`);
 
-      const specsHTML = specsArr.map(t => `<div class="caracteristica">${t}</div>`).join('');
-      const whatsappMsg = encodeURIComponent(`Olá Mauricio, tenho interesse nesse imóvel (ID: ${im.id})`);
+      const specsHTML = specsArr
+        .map(t => `<div class="caracteristica">${t}</div>`)
+        .join('');
+
+      const whatsappMsg = encodeURIComponent(
+        `Olá Mauricio, tenho interesse nesse imóvel (ID: ${im.id})`
+      );
 
       return `
         <article class="imovel">
@@ -245,4 +262,14 @@
           <div class="caracteristicas">${specsHTML}</div>
           <div class="cta">
             <a class="btn btn-whatsapp" href="https://wa.me/54999832413?text=${whatsappMsg}" target="_blank" rel="noopener noreferrer">Falar no WhatsApp</a>
-            <a href="https://www.facebook.com/MauricioSilveira1962/" target="_blank" rel="noopener noreferrer">Facebook</a
+            <a href="https://www.facebook.com/MauricioSilveira1962/" target="_blank" rel="noopener noreferrer">Facebook</a>
+            <a href="https://www.instagram.com/mascorretor" target="_blank" rel="noopener noreferrer">Instagram</a>
+            <a href="https://www.threads.net/@mascorretor" target="_blank" rel="noopener noreferrer">Threads</a>
+          </div>
+        </article>
+      `;
+    }
+  </script>
+
+</body>
+</html>
