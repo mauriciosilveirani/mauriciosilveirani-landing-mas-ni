@@ -70,6 +70,7 @@
       margin-bottom: 3rem;
       border-bottom: 1px solid #eee;
       padding-bottom: 2rem;
+      cursor: pointer;               /* novo: cursor clicável */
     }
     .imovel h2 {
       font-size: 1.6rem;
@@ -133,6 +134,33 @@
       margin-right: .5rem;
       color: #00304A;
       font-weight: bold;
+    }
+
+    /* resumo x detalhes */
+    .imovel .summary {
+      display: grid;
+      grid-template-columns: 120px 1fr;
+      gap: 1rem;
+      align-items: center;
+    }
+    .imovel .summary img {
+      width: 120px;
+      height: 80px;
+      object-fit: cover;
+      border-radius: 4px;
+    }
+    .imovel .summary .info {
+      font-size: 0.95rem;
+      line-height: 1.3;
+    }
+    .imovel .details {
+      display: none;
+      margin-top: 1rem;
+      padding-top: 1rem;
+      border-top: 1px solid #eee;
+    }
+    .imovel.expanded .details {
+      display: block;
     }
 
     footer {
@@ -202,11 +230,12 @@
     }
 
     function atualizarValor(valor) {
-      console.log('Valor slider:', valor);
       const exibido = document.getElementById("valor-exibido");
       exibido.textContent = `R$ ${Number(valor).toLocaleString('pt-BR')}`;
       const valorSelecionado = Number(valor);
-      const filtrados = todosOsImoveis.filter(im => im.valor <= valorSelecionado);
+      const filtrados = valorSelecionado > 0
+        ? todosOsImoveis.filter(im => im.valor <= valorSelecionado)
+        : todosOsImoveis;
       renderizarImoveis(filtrados);
     }
 
@@ -218,6 +247,7 @@
     }
 
     function renderImovel(im) {
+      // montagem do endereço
       const endParts = [
         im.endereco.rua,
         im.endereco.unidade ? `Unid. ${im.endereco.unidade}` : null,
@@ -225,14 +255,32 @@
         im.endereco.cidade
       ].filter(Boolean).join(' – ');
 
+      // primeira foto ou placeholder
+      const primeiraFoto = (im.fotos && im.fotos[0])
+        ? im.fotos[0]
+        : 'https://via.placeholder.com/120x80?text=Sem+foto';
+
+      // HTML do resumo
+      const summaryHTML = `
+        <div class="summary">
+          <img src="${primeiraFoto}" alt="Foto de ${im.titulo}" loading="lazy">
+          <div class="info">
+            <h2>${highlight(im.titulo, im.palavraDestaque)}</h2>
+            <p><strong>R$ ${im.valor.toLocaleString('pt-BR')}</strong></p>
+            <p>${endParts}</p>
+          </div>
+        </div>
+      `;
+
+      // galeria completa
       const galeriaHTML = (im.fotos || []).length
         ? im.fotos.map((src,i) =>
             `<img src="${src}" alt="Foto ${i+1} de ${im.titulo}" loading="lazy">`
           ).join('')
         : '<p>Sem imagens disponíveis.</p>';
 
+      // características detalhadas
       const specsArr = [
-        `Valor: R$ ${im.valor.toLocaleString('pt-BR')}`,
         `Perfil: ${im.perfil}`,
         `Área Terreno: ${im.terreno || '–'} m²`,
         `Área Const.: ${im.areaConstruida || '–'} m²`,
@@ -241,18 +289,18 @@
         `Elevador: ${im.elevador || '–'}`
       ];
       if (im.complemento) specsArr.push(`Complemento: ${im.complemento}`);
-
       const specsHTML = specsArr
         .map(t => `<div class="caracteristica">${t}</div>`)
         .join('');
 
+      // mensagem do WhatsApp
       const whatsappMsg = encodeURIComponent(
         `Olá Mauricio, tenho interesse nesse imóvel (ID: ${im.id})`
       );
 
-      return `
-        <article class="imovel">
-          <h2>${highlight(im.titulo, im.palavraDestaque)}</h2>
+      // HTML dos detalhes (inicialmente oculto)
+      const detailsHTML = `
+        <div class="details">
           <div class="galeria">${galeriaHTML}</div>
           <ul class="info-geral">
             <li><strong>Endereço:</strong> ${endParts}</li>
@@ -261,11 +309,24 @@
           </ul>
           <div class="caracteristicas">${specsHTML}</div>
           <div class="cta">
-            <a class="btn btn-whatsapp" href="https://wa.me/54999832413?text=${whatsappMsg}" target="_blank" rel="noopener noreferrer">Falar no WhatsApp</a>
-            <a href="https://www.facebook.com/MauricioSilveira1962/" target="_blank" rel="noopener noreferrer">Facebook</a>
-            <a href="https://www.instagram.com/mascorretor" target="_blank" rel="noopener noreferrer">Instagram</a>
-            <a href="https://www.threads.net/@mascorretor" target="_blank" rel="noopener noreferrer">Threads</a>
+            <a class="btn btn-whatsapp"
+               href="https://wa.me/54999832413?text=${whatsappMsg}"
+               target="_blank"
+               rel="noopener noreferrer">
+              Falar no WhatsApp
+            </a>
+            <a href="https://www.facebook.com/MauricioSilveira1962/" target="_blank">Facebook</a>
+            <a href="https://www.instagram.com/mascorretor" target="_blank">Instagram</a>
+            <a href="https://www.threads.net/@mascorretor" target="_blank">Threads</a>
           </div>
+        </div>
+      `;
+
+      // monta e retorna o artigo clicável
+      return `
+        <article class="imovel" onclick="this.classList.toggle('expanded')">
+          ${summaryHTML}
+          ${detailsHTML}
         </article>
       `;
     }
