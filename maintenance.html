@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Manutenção de Imóveis – Tytan</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 1rem; background: #fafafa; }
+    label { display: block; margin-top: 1rem; font-weight: bold; }
+    input, textarea, button { width: 100%; margin-top: .5rem; }
+    textarea { height: 200px; font-family: monospace; }
+    button { padding: .6rem; background: #3498db; color: #fff; border: none; border-radius: 4px; cursor: pointer; }
+    #status { margin-top: 1rem; color: green; }
+    #error { margin-top: 1rem; color: red; }
+  </style>
+</head>
+<body>
+
+  <h1>Área de Manutenção de Imóveis</h1>
+
+  <label for="token">GitHub Token (com repo scope):</label>
+  <input type="password" id="token" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx">
+
+  <label for="input-json">JSON de Imóveis (array de objetos):</label>
+  <textarea id="input-json" placeholder='[{"id":1,"titulo":"…","fotos":["url"],…}, …]'></textarea>
+
+  <button onclick="publish()">Publicar no site</button>
+
+  <div id="status"></div>
+  <div id="error"></div>
+
+  <script>
+    const REPO = 'mauriciosilveirani/mauriciosilveirani-landing-mas-ni';
+    const PATH = 'imoveis.json';
+    const BRANCH = 'main';
+
+    async function publish() {
+      document.getElementById('status').textContent = '';
+      document.getElementById('error').textContent = '';
+
+      const token = document.getElementById('token').value.trim();
+      const rawJson = document.getElementById('input-json').value.trim();
+
+      if (!token) {
+        return document.getElementById('error').textContent = 'Informe seu GitHub Token.';
+      }
+      if (!rawJson) {
+        return document.getElementById('error').textContent = 'Cole o JSON antes de publicar.';
+      }
+
+      let contentB64;
+      try {
+        // valida JSON
+        JSON.parse(rawJson);
+        contentB64 = btoa(unescape(encodeURIComponent(rawJson)));
+      } catch (e) {
+        return document.getElementById('error').textContent = 'JSON inválido: ' + e.message;
+      }
+
+      try {
+        // 1) pega SHA atual
+        const getRes = await fetch(`https://api.github.com/repos/${REPO}/contents/${PATH}?ref=${BRANCH}`, {
+          headers: { Authorization: `token ${token}` }
+        });
+        const { sha } = await getRes.json();
+
+        // 2) atualiza arquivo
+        const putRes = await fetch(`https://api.github.com/repos/${REPO}/contents/${PATH}`, {
+          method: 'PUT',
+          headers: {
+            Authorization: `token ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            message: 'Atualiza imoveis.json via maintenance.html',
+            branch: BRANCH,
+            content: contentB64,
+            sha: sha
+          })
+        });
+
+        if (!putRes.ok) throw await putRes.json();
+        document.getElementById('status').textContent = '✅ Publicado com sucesso!';
+      } catch (err) {
+        document.getElementById('error').textContent = 'Erro ao publicar: ' + (err.message || JSON.stringify(err));
+      }
+    }
+  </script>
+
+</body>
+</html>
