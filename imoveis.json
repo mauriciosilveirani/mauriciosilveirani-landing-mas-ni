@@ -2,14 +2,27 @@
   "imobs": [
     {
       "id": 1,
-      "titulo": "Casa no centro",
-      "link": "https://exemplo.com/imovel1",
-      "fotos": [
-        "https://i.imgur.com/exemplo1.jpg",
-        "https://i.imgur.com/exemplo2.jpg"
-      ],
-      "valor": 350000,
-      "whatsapp": "5554999999999"
+      "titulo": "https://www.tytanimoveis.com.br/passo-fundo/imovel/vetro-residence/1048",
+      "palavraDestaque": "",
+      "endereco": {
+        "rua": "",
+        "unidade": "",
+        "bairro": "",
+        "cidade": "",
+        "cep": ""
+      },
+      "fotos": [],
+      "valor": 0,
+      "perfil": "–",
+      "terreno": 0,
+      "areaConstruida": 0,
+      "vagas": 0,
+      "lavabos": 0,
+      "elevador": "–",
+      "complemento": "",
+      "proximo": "",
+      "link": "https://www.tytanimoveis.com.br/passo-fundo/imovel/vetro-residence/1048",
+      "whatsapp": ""
     }
   ]
 }
