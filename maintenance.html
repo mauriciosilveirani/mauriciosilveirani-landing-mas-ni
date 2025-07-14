@@ -1,17 +1,16 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Manutenção de Imóveis – Tytan</title>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Área de Manutenção de Imóveis</title>
   <style>
-    body { font-family: Arial, sans-serif; padding: 1rem; background: #fafafa; }
+    body { font-family: Arial, sans-serif; max-width: 800px; margin: 2rem auto; padding: 1rem; }
     label { display: block; margin-top: 1rem; font-weight: bold; }
-    input, textarea, button { width: 100%; margin-top: .5rem; }
-    textarea { height: 200px; font-family: monospace; }
-    button { padding: .6rem; background: #3498db; color: #fff; border: none; border-radius: 4px; cursor: pointer; }
+    input, textarea { width: 100%; padding: .6rem; margin-top: .3rem; border: 1px solid #ccc; border-radius: 4px; }
+    button { margin-top: 1rem; padding: .6rem 1.2rem; background: #007BFF; color: #fff; border: none; border-radius: 4px; cursor: pointer; }
     #status { margin-top: 1rem; color: green; }
-    #error { margin-top: 1rem; color: red; }
+    #error  { margin-top: 1rem; color: red;   }
   </style>
 </head>
 <body>
@@ -19,10 +18,10 @@
   <h1>Área de Manutenção de Imóveis</h1>
 
   <label for="token">GitHub Token (com repo scope):</label>
-  <input type="password" id="token" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx">
+  <input type="password" id="token" placeholder="<input type="password" id="token" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx"/>
 
-  <label for="input-json">JSON de Imóveis (array de objetos):</label>
-  <textarea id="input-json" placeholder='[{"id":1,"titulo":"…","fotos":["url"],…}, …]'></textarea>
+  <label for="input-json">Cole as URLs ou JSON de Imóveis:</label>
+  <textarea id="input-json" rows="10" placeholder="['https://…', …] ou [{ 'id':1, 'titulo':'…' }, …]"></textarea>
 
   <button onclick="publish()">Publicar no site</button>
 
@@ -30,60 +29,95 @@
   <div id="error"></div>
 
   <script>
-    const REPO = 'mauriciosilveirani/mauriciosilveirani-landing-mas-ni';
-    const PATH = 'imoveis.json';
+    const REPO   = 'mauriciosilveirani/mauriciosilveirani-landing-mas-ni';
     const BRANCH = 'main';
+    const PATH   = 'imoveis.json';
 
     async function publish() {
       document.getElementById('status').textContent = '';
-      document.getElementById('error').textContent = '';
+      document.getElementById('error').textContent  = '';
 
       const token = document.getElementById('token').value.trim();
-      const rawJson = document.getElementById('input-json').value.trim();
+      const raw   = document.getElementById('input-json').value.trim();
 
-      if (!token) {
-        return document.getElementById('error').textContent = 'Informe seu GitHub Token.';
-      }
-      if (!rawJson) {
-        return document.getElementById('error').textContent = 'Cole o JSON antes de publicar.';
-      }
+      if (!token) return showError('Informe seu GitHub Token.');
+      if (!raw)   return showError('Cole as URLs ou JSON antes de publicar.');
 
-      let contentB64;
+      let arr;
       try {
-        // valida JSON
-        JSON.parse(rawJson);
-        contentB64 = btoa(unescape(encodeURIComponent(rawJson)));
+        if (raw.startsWith('[') && raw.endsWith(']')) {
+          arr = JSON.parse(raw);
+        } else {
+          arr = raw.split(/\r?\n|\s+/).filter(u => u.startsWith('http'));
+        }
+        if (!Array.isArray(arr) || arr.length === 0) {
+          throw new Error('Conteúdo não é um array ou está vazio.');
+        }
       } catch (e) {
-        return document.getElementById('error').textContent = 'JSON inválido: ' + e.message;
+        return showError('Valor inválido: ' + e.message);
+      }
+
+      const todos = arr.map((u, i) => ({
+        id:              i + 1,
+        titulo:          u,
+        palavraDestaque: '',
+        endereco:        { rua:'', unidade:'', bairro:'', cidade:'', cep:'' },
+        fotos:           [],
+        valor:           0,
+        perfil:          '–',
+        terreno:         0,
+        areaConstruida:  0,
+        vagas:           0,
+        lavabos:         0,
+        elevador:        '–',
+        complemento:     '',
+        proximo:         '',
+        link:            u,
+        whatsapp:        ''
+      }));
+
+      const contentB64 = btoa(unescape(encodeURIComponent(
+        JSON.stringify({ imobs: todos }, null, 2)
+      )));
+
+      let sha;
+      try {
+        const res1 = await fetch(
+          `https://api.github.com/repos/${REPO}/contents/${PATH}?ref=${BRANCH}`, {
+            headers: { Authorization: `token ${token}` }
+          }
+        );
+        const j1 = await res1.json();
+        sha = j1.sha;
+      } catch (e) {
+        return showError('Erro ao buscar SHA: ' + e.message);
       }
 
       try {
-        // 1) pega SHA atual
-        const getRes = await fetch(`https://api.github.com/repos/${REPO}/contents/${PATH}?ref=${BRANCH}`, {
-          headers: { Authorization: `token ${token}` }
-        });
-        const { sha } = await getRes.json();
-
-        // 2) atualiza arquivo
-        const putRes = await fetch(`https://api.github.com/repos/${REPO}/contents/${PATH}`, {
-          method: 'PUT',
-          headers: {
-            Authorization: `token ${token}`,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            message: 'Atualiza imoveis.json via maintenance.html',
-            branch: BRANCH,
-            content: contentB64,
-            sha: sha
-          })
-        });
-
-        if (!putRes.ok) throw await putRes.json();
+        const res2 = await fetch(
+          `https://api.github.com/repos/${REPO}/contents/${PATH}`, {
+            method:  'PUT',
+            headers: {
+              Authorization: `token ${token}`,
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              message: 'Atualiza imoveis.json via maintenance.html',
+              branch:  BRANCH,
+              content: contentB64,
+              sha:     sha
+            })
+          }
+        );
+        if (!res2.ok) throw await res2.json();
         document.getElementById('status').textContent = '✅ Publicado com sucesso!';
-      } catch (err) {
-        document.getElementById('error').textContent = 'Erro ao publicar: ' + (err.message || JSON.stringify(err));
+      } catch (e) {
+        return showError('Erro ao publicar: ' + (e.message || JSON.stringify(e)));
       }
+    }
+
+    function showError(msg) {
+      document.getElementById('error').textContent = msg;
     }
   </script>
 
