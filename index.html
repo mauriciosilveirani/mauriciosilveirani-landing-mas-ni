@@ -70,7 +70,7 @@
       margin-bottom: 3rem;
       border-bottom: 1px solid #eee;
       padding-bottom: 2rem;
-      cursor: pointer;               /* novo: cursor clicável */
+      cursor: pointer;
     }
     .imovel h2 {
       font-size: 1.6rem;
@@ -163,6 +163,33 @@
       display: block;
     }
 
+    /* área de manutenção */
+    #maintenance {
+      margin: 2rem 0;
+      padding: 1rem;
+      background: #fafafa;
+      border: 1px solid #ddd;
+    }
+    #maintenance textarea {
+      width: 100%;
+      height: 120px;
+      font-family: monospace;
+      margin-bottom: 0.5rem;
+    }
+    #maintenance button {
+      padding: .6rem 1rem;
+      background: #3498db;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    #maintenance p {
+      font-size: .85rem;
+      color: #666;
+      margin-top: 0.5rem;
+    }
+
     footer {
       text-align: center;
       font-size: .8rem;
@@ -189,7 +216,7 @@
         type="range"
         id="valor-interesse"
         name="valor-interesse"
-        min="40000"
+        min="0"
         max="20000000"
         step="50000"
         value="500000"
@@ -201,6 +228,15 @@
     <div id="imoveis-container">
       <!-- Imóveis serão carregados aqui -->
     </div>
+
+    <section id="maintenance">
+      <h3>Área de Manutenção</h3>
+      <p>Cole aqui a lista JSON de imóveis (array de objetos) ou lista de URLs:</p>
+      <textarea id="maintenance-input"
+                placeholder='Ex: [{"id":1,"titulo":"…","fotos":["url1","url2"],…}, …]'></textarea>
+      <button onclick="applyMaintenance()">Atualizar Imóveis</button>
+      <p>JSON inválido mostrará alerta com o erro.</p>
+    </section>
   </main>
 
   <footer>
@@ -211,6 +247,7 @@
     const JSON_URL = './imoveis.json';
     let todosOsImoveis = [];
 
+    // Carrega do JSON inicial
     fetch(JSON_URL)
       .then(resp => resp.json())
       .then(data => {
@@ -218,10 +255,10 @@
         renderizarImoveis(todosOsImoveis);
       });
 
+    // Funções utilitárias
     function escapeRegExp(str = '') {
       return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     }
-
     function highlight(text, word) {
       if (!word) return text;
       const esc = escapeRegExp(word);
@@ -229,58 +266,50 @@
       return text.replace(regex, '<span class="highlight">$1</span>');
     }
 
+    // Atualiza o slider e valor
     function atualizarValor(valor) {
-      const exibido = document.getElementById("valor-exibido");
-      exibido.textContent = `R$ ${Number(valor).toLocaleString('pt-BR')}`;
-      const valorSelecionado = Number(valor);
-      const filtrados = valorSelecionado > 0
-        ? todosOsImoveis.filter(im => im.valor <= valorSelecionado)
-        : todosOsImoveis;
+      const exib = document.getElementById("valor-exibido");
+      exib.textContent = `R$ ${Number(valor).toLocaleString('pt-BR')}`;
+      const sel = Number(valor);
+      const filtrados = sel > 0 ? todosOsImoveis.filter(i => i.valor <= sel) : todosOsImoveis;
       renderizarImoveis(filtrados);
     }
 
+    // Renderiza lista de imóveis
     function renderizarImoveis(lista) {
-      const container = document.getElementById("imoveis-container");
-      container.innerHTML = lista.length
+      const cont = document.getElementById("imoveis-container");
+      cont.innerHTML = lista.length
         ? lista.map(im => renderImovel(im)).join('')
         : '<p>Nenhum imóvel disponível para esse valor.</p>';
     }
 
+    // Renderiza cada imóvel (resumo + detalhes)
     function renderImovel(im) {
-      // montagem do endereço
-      const endParts = [
+      const endP = [
         im.endereco.rua,
         im.endereco.unidade ? `Unid. ${im.endereco.unidade}` : null,
         im.endereco.bairro,
         im.endereco.cidade
       ].filter(Boolean).join(' – ');
 
-      // primeira foto ou placeholder
-      const primeiraFoto = (im.fotos && im.fotos[0])
-        ? im.fotos[0]
-        : 'https://via.placeholder.com/120x80?text=Sem+foto';
+      const primeiraFoto = (im.fotos && im.fotos[0]) || 'https://via.placeholder.com/120x80?text=Sem+foto';
 
-      // HTML do resumo
-      const summaryHTML = `
+      const summary = `
         <div class="summary">
           <img src="${primeiraFoto}" alt="Foto de ${im.titulo}" loading="lazy">
           <div class="info">
             <h2>${highlight(im.titulo, im.palavraDestaque)}</h2>
             <p><strong>R$ ${im.valor.toLocaleString('pt-BR')}</strong></p>
-            <p>${endParts}</p>
+            <p>${endP}</p>
           </div>
         </div>
       `;
 
-      // galeria completa
-      const galeriaHTML = (im.fotos || []).length
-        ? im.fotos.map((src,i) =>
-            `<img src="${src}" alt="Foto ${i+1} de ${im.titulo}" loading="lazy">`
-          ).join('')
+      const galeria = (im.fotos || []).length
+        ? im.fotos.map((s,i) => `<img src="${s}" alt="Foto ${i+1}" loading="lazy">`).join('')
         : '<p>Sem imagens disponíveis.</p>';
 
-      // características detalhadas
-      const specsArr = [
+      const specs = [
         `Perfil: ${im.perfil}`,
         `Área Terreno: ${im.terreno || '–'} m²`,
         `Área Const.: ${im.areaConstruida || '–'} m²`,
@@ -288,33 +317,22 @@
         `Lavabos: ${im.lavabos || 0}`,
         `Elevador: ${im.elevador || '–'}`
       ];
-      if (im.complemento) specsArr.push(`Complemento: ${im.complemento}`);
-      const specsHTML = specsArr
-        .map(t => `<div class="caracteristica">${t}</div>`)
-        .join('');
+      if (im.complemento) specs.push(`Complemento: ${im.complemento}`);
+      const specsHTML = specs.map(t => `<div class="caracteristica">${t}</div>`).join('');
 
-      // mensagem do WhatsApp
-      const whatsappMsg = encodeURIComponent(
-        `Olá Mauricio, tenho interesse nesse imóvel (ID: ${im.id})`
-      );
+      const msg = encodeURIComponent(`Olá Mauricio, tenho interesse nesse imóvel (ID: ${im.id})`);
 
-      // HTML dos detalhes (inicialmente oculto)
-      const detailsHTML = `
+      const details = `
         <div class="details">
-          <div class="galeria">${galeriaHTML}</div>
+          <div class="galeria">${galeria}</div>
           <ul class="info-geral">
-            <li><strong>Endereço:</strong> ${endParts}</li>
+            <li><strong>Endereço:</strong> ${endP}</li>
             <li><strong>CEP:</strong> ${im.endereco.cep}</li>
             <li><strong>Próximo a:</strong> ${im.proximo || '–'}</li>
           </ul>
           <div class="caracteristicas">${specsHTML}</div>
           <div class="cta">
-            <a class="btn btn-whatsapp"
-               href="https://wa.me/54999832413?text=${whatsappMsg}"
-               target="_blank"
-               rel="noopener noreferrer">
-              Falar no WhatsApp
-            </a>
+            <a class="btn btn-whatsapp" href="https://wa.me/54999832413?text=${msg}" target="_blank">WhatsApp</a>
             <a href="https://www.facebook.com/MauricioSilveira1962/" target="_blank">Facebook</a>
             <a href="https://www.instagram.com/mascorretor" target="_blank">Instagram</a>
             <a href="https://www.threads.net/@mascorretor" target="_blank">Threads</a>
@@ -322,13 +340,26 @@
         </div>
       `;
 
-      // monta e retorna o artigo clicável
-      return `
-        <article class="imovel" onclick="this.classList.toggle('expanded')">
-          ${summaryHTML}
-          ${detailsHTML}
-        </article>
-      `;
+      return `<article class="imovel" onclick="this.classList.toggle('expanded')">${summary}${details}</article>`;
+    }
+
+    // Área de manutenção: atualiza lista via JSON ou URLs
+    function applyMaintenance() {
+      const raw = document.getElementById('maintenance-input').value.trim();
+      if (!raw) return alert('Cole JSON ou URLs antes de atualizar.');
+      try {
+        const data = JSON.parse(raw);
+        if (!Array.isArray(data)) throw new Error('Deve ser array.');
+        todosOsImoveis = typeof data[0] === 'string'
+          ? data.map((u,i) => ({ id:i+1, titulo:'Imóvel '+(i+1), fotos:[u], valor:0,
+                                perfil:'–', terreno:0, areaConstruida:0, vagas:0, lavabos:0,
+                                elevador:'–', endereco:{rua:'',bairro:'',cidade:'',cep:''} }))
+          : data;
+        renderizarImoveis(todosOsImoveis);
+        alert('Imóveis atualizados!');
+      } catch (e) {
+        alert('JSON inválido: '+e.message);
+      }
     }
   </script>
 
